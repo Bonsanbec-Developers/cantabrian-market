@@ -87,6 +87,8 @@
 		<a href="/" class="text-lg font-bold">Cantabrian Market</a>
 		<a href="/" class="hover:underline">Inicio</a>
 		<a href="/carrito" class="hover:underline">Carrito{itemsCount > 0 ? " (" + itemsCount + ") [$" + itemsTotal + "]": ""}</a>
+        <a href="/pedidos" class="hover:underline">Pedidos</a>
+        <a href="/publicar" class="hover:underline">Publicar</a>
 	</div>
 	<div>
 		{#if $user}
