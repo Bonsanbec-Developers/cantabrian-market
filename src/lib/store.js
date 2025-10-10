@@ -3,6 +3,12 @@ import { supabase } from '$lib/supabaseClient';
 
 export const carrito = writable([]);
 
+// Stores para productos y filtros
+export const productosStore = writable([]);
+export const searchQueryStore = writable('');
+export const precioMinStore = writable('');
+export const precioMaxStore = writable('');
+
 
 /**
  * @param {{ id: any; }} producto
