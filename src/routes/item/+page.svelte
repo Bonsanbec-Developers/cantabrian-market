@@ -5,6 +5,7 @@
   import { get } from 'svelte/store';
   import { carrito, agregar, quitarUno } from '$lib/store'; // Importa los stores necesarios
   import { derived } from 'svelte/store';
+	import Loading from '../../components/Loading.svelte';
 
   let product: { imagen: any; nombre: any; descripcion: any; precio: number; id: string } | null = null;
   let loading = true;
@@ -34,9 +35,7 @@
 </script>
 
 {#if loading}
-  <div class="flex justify-center items-center h-screen text-gray-700 font-semibold">
-    Cargando producto...
-  </div>
+  <Loading/>
 {:else if product}
   <div class="min-h-screen bg-gradient-to-r from-purple-100 via-pink-100 to-yellow-100 p-6 flex flex-col md:flex-row max-w-7xl mx-auto shadow-lg rounded-lg">
     <div class="md:w-1/2 flex justify-center items-center p-4">
