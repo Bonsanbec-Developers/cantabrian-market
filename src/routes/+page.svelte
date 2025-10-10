@@ -25,7 +25,7 @@
 		if (error) {
 			console.error(error);
 			errorMsg = 'No se pudieron cargar los productos.';
-		} else productos = data;
+		} else productos = data.sort(() => Math.random() - 0.5);
 		cargando = false;
 	});
 
