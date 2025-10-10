@@ -1,8 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-	import { agregar, carrito } from '$lib/store';
+	import { agregar, carrito, quitarUno } from '$lib/store';
 	import { writable, derived } from 'svelte/store';
+	import { goto } from '$app/navigation';
 
 	/** @type {any[]} */
 	let productos = [];
@@ -56,6 +57,7 @@
 	const cantidadesEnCarrito = derived(carrito, ($carrito) => {
 		const cantidades = {};
 		for (const item of $carrito) {
+			// @ts-ignore
 			cantidades[item.id] = (cantidades[item.id] || 0) + item.cantidad;
 		}
 		return cantidades;
@@ -113,6 +115,8 @@
 						</div>
 					{/if}
 
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
 						class="h-48 w-full cursor-pointer overflow-hidden"
 						on:click={() => goto(`/item?id=${p.id}`)}
@@ -130,20 +134,22 @@
 							<span class="text-xl font-bold text-gray-900">${p.precio}</span>
 
 							{#if $cantidadesEnCarrito[p.id]}
-								<div class="flex items-center gap-2">
+								<div class="flex items-center justify-center gap-2 h-12">
 									<button
-										class="rounded bg-gray-200 px-2 py-1 text-gray-800 hover:bg-gray-300"
-										on:click={() => quitarUno(p.id)}>-</button
-									>
-									<span class="font-semibold">{$cantidadesEnCarrito[p.id]}</span>
+										class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-bold text-xl transition-transform hover:scale-105 active:scale-95"
+										on:click={() => quitarUno(p.id)}
+										aria-label="Quitar uno"
+									>-</button>
+									<span class="font-semibold text-lg w-6 text-center select-none">{$cantidadesEnCarrito[p.id]}</span>
 									<button
-										class="rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700"
-										on:click={() => agregar(p)}>+</button
-									>
+										class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-bold text-xl transition-transform hover:scale-105 active:scale-95"
+										on:click={() => agregar(p)}
+										aria-label="Agregar uno"
+									>+</button>
 								</div>
 							{:else}
 								<button
-									class="rounded-lg bg-blue-600 px-4 py-2 text-white shadow transition-colors hover:bg-blue-700"
+									class="flex items-center justify-center h-12 px-6 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-semibold text-base transition-transform hover:scale-105 active:scale-95"
 									on:click={() => agregar(p)}
 								>
 									Añadir

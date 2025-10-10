@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { supabase } from '$lib/supabaseClient';
-    import { cargarCarrito } from '$lib/store';
+	import { cargarCarrito, carrito } from '$lib/store';
 	import '../app.css';
 
 	export const user = writable(null);
@@ -13,6 +13,24 @@
 	let password = '';
 	let errorMsg = '';
 
+	let itemsCount = $derived.by(() => {
+		let itemsCount = 0;
+		$carrito.forEach((v) => {
+			// @ts-ignore
+			itemsCount += v.cantidad;
+		});
+		return itemsCount;
+	});
+
+    let itemsTotal = $derived.by(() => {
+		let itemsTotal = 0;
+		$carrito.forEach((v) => {
+			// @ts-ignore
+			itemsTotal += v.precio * v.cantidad;
+		});
+		return itemsTotal;
+	});
+
 	onMount(async () => {
 		const {
 			data: { session }
@@ -21,10 +39,10 @@
 
 		supabase.auth.onAuthStateChange((_event, session) => {
 			user.set(session?.user ?? null);
-            cargarCarrito();
+			cargarCarrito();
 		});
 
-        await cargarCarrito();
+		await cargarCarrito();
 	});
 
 	async function handleLogin() {
@@ -68,7 +86,7 @@
 	<div class="flex gap-4">
 		<a href="/" class="text-lg font-bold">Cantabrian Market</a>
 		<a href="/" class="hover:underline">Inicio</a>
-		<a href="/carrito" class="hover:underline">Carrito</a>
+		<a href="/carrito" class="hover:underline">Carrito{itemsCount > 0 ? " (" + itemsCount + ") [$" + itemsTotal + "]": ""}</a>
 	</div>
 	<div>
 		{#if $user}
