@@ -1,59 +1,64 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcomeFallback from '$lib/images/svelte-welcome.png';
+  import { onMount } from 'svelte';
+  import { supabase } from '$lib/supabaseClient';
+  import { agregar } from '$lib/store';
+
+  /** @type {any[]} */
+  let productos = [];
+
+  let cargando = true;
+  let errorMsg = "";
+
+  onMount(async () => {
+    const { data, error } = await supabase.from('productos').select('*');
+    if (error) {
+      console.error(error);
+      errorMsg = "No se pudieron cargar los productos.";
+    } else productos = data;
+    cargando = false;
+  });
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
+<section class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">Catálogo de Productos</h1>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
+  {#if cargando}
+    <p class="text-center text-gray-500">Cargando productos...</p>
+  {:else if errorMsg}
+    <p class="text-center text-red-500">{errorMsg}</p>
+  {:else if productos.length === 0}
+    <p class="text-center text-gray-500">No hay productos disponibles.</p>
+  {:else}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {#each productos as p}
+        <div class="group relative bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+          <div class="h-48 w-full overflow-hidden">
+            <img src={p.imagen} alt={p.nombre} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+          </div>
+          <div class="p-4">
+            <h2 class="text-lg font-semibold text-gray-800">{p.nombre}</h2>
+            <p class="text-sm text-gray-500 mt-1 h-14 overflow-hidden">{p.descripcion}</p>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="text-xl font-bold text-gray-900">${p.precio}</span>
+              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors"
+                      on:click={() => agregar(p)}>
+                Añadir
+              </button>
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </section>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
+  /* Para suavizar sombras y transiciones */
+  img {
+    transition: transform 0.3s ease-in-out;
+  }
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  }
 </style>
