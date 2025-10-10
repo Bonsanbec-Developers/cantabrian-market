@@ -17,6 +17,8 @@
   let mensaje = '';
   let mensajeError = '';
 
+  let isUploading = false;
+
   function validarCampos() {
     errorNombre = nombre.trim() === '';
     errorDescripcion = descripcion.trim() === '';
@@ -29,6 +31,11 @@
   async function handleSubmit() {
     mensaje = '';
     mensajeError = '';
+
+    if (isUploading) {
+      mensajeError = 'Por favor espera a que la imagen termine de subir.';
+      return;
+    }
 
     if (!validarCampos()) {
       return;
@@ -64,6 +71,47 @@
     } catch {
       return false;
     }
+  }
+
+  async function handleFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+
+    isUploading = true;
+    mensajeError = '';
+    mensaje = '';
+
+    const user = await supabase.auth.getUser();
+    const uid = user.data.user?.id;
+    if (!uid) {
+      mensajeError = 'Usuario no autenticado.';
+      isUploading = false;
+      return;
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${uid}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('productos')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      mensajeError = `Error al subir la imagen: ${uploadError.message}`;
+      isUploading = false;
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('productos')
+      .getPublicUrl(filePath);
+
+    imagen = publicUrlData.publicUrl;
+    isUploading = false;
   }
 </script>
 
@@ -120,13 +168,21 @@
       </div>
 
       <div>
-        <label for="imagen" class="block text-gray-700 font-medium mb-1">URL de la imagen</label>
+        <label for="imagen" class="block text-gray-700 font-medium mb-1">URL de la imagen (opcional)</label>
         <input
           id="imagen"
           type="url"
           bind:value={imagen}
-          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-serif text-gray-900 {errorImagen ? 'border-red-500' : 'border-gray-300'}"
+          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-serif text-gray-900 mb-2 {errorImagen ? 'border-red-500' : 'border-gray-300'}"
           placeholder="https://ejemplo.com/imagen.jpg"
+        />
+        <label for="file" class="block text-gray-700 font-medium mb-1 mt-4">O sube una imagen</label>
+        <input
+          id="file"
+          type="file"
+          accept="image/*"
+          on:change={handleFileChange}
+          class="w-full"
         />
         {#if imagen.trim() !== '' && isValidUrl(imagen)}
           <img src={imagen} alt="Previsualización de la imagen" class="w-full h-64 object-contain mt-2 rounded-md shadow-sm border" />
@@ -135,9 +191,14 @@
 
       <button
         type="submit"
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-md shadow-md transition-colors duration-300 font-serif"
+        disabled={isUploading}
+        class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-md shadow-md transition-colors duration-300 font-serif"
       >
-        Agregar producto
+        {#if isUploading}
+          Subiendo imagen...
+        {:else}
+          Agregar producto
+        {/if}
       </button>
     </form>
   </div>
