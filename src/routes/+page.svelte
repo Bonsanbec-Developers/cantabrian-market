@@ -1,20 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-	import { agregar, carrito, quitarUno } from '$lib/store';
+	import { agregar, carrito, quitarUno, productosStore, searchQueryStore, precioMinStore, precioMaxStore } from '$lib/store';
 	import { writable, derived } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import Loading from '../components/Loading.svelte';
 
-	/** @type {any[]} */
-	let productos = [];
 	let cargando = true;
 	let errorMsg = '';
-
-	// Filtros y búsqueda
-	let searchQuery = '';
-	let precioMin = '';
-	let precioMax = '';
 
 	// Paginación
 	const itemsPorPagina = 8;
@@ -25,19 +18,25 @@
 		if (error) {
 			console.error(error);
 			errorMsg = 'No se pudieron cargar los productos.';
-		} else productos = data.sort(() => Math.random() - 0.5);
+		} else {
+			const shuffled = data.sort(() => Math.random() - 0.5);
+			productosStore.set(shuffled);
+		}
 		cargando = false;
 	});
 
-	// Filtrado y búsqueda
-	const productosFiltrados = derived([paginaActual], () => {
-		return productos.filter(
-			(p) =>
-				p.nombre.toLowerCase().includes(searchQuery.toLowerCase()) &&
-				(!precioMin || p.precio >= parseFloat(precioMin)) &&
-				(!precioMax || p.precio <= parseFloat(precioMax))
-		);
-	});
+	// Filtrado y búsqueda reactivo con derived
+	const productosFiltrados = derived(
+		[productosStore, searchQueryStore, precioMinStore, precioMaxStore],
+		([$productos, $searchQuery, $precioMin, $precioMax]) => {
+			return $productos.filter(
+				(p) =>
+					p.nombre.toLowerCase().includes($searchQuery.toLowerCase()) &&
+					(!$precioMin || p.precio >= parseFloat($precioMin)) &&
+					(!$precioMax || p.precio <= parseFloat($precioMax))
+			);
+		}
+	);
 
 	// Paginación calculada
 	const paginas = derived(productosFiltrados, ($productosFiltrados) => {
@@ -73,7 +72,7 @@
 		<input
 			type="text"
 			placeholder="Buscar productos..."
-			bind:value={searchQuery}
+			bind:value={$searchQueryStore}
 			class="flex-1 rounded border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 		/>
 
@@ -81,23 +80,23 @@
 			<input
 				type="number"
 				placeholder="Min"
-				bind:value={precioMin}
+				bind:value={$precioMinStore}
 				class="w-20 rounded border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 			/>
 			<input
 				type="number"
 				placeholder="Max"
-				bind:value={precioMax}
+				bind:value={$precioMaxStore}
 				class="w-20 rounded border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 			/>
 		</div>
 	</div>
 
 	{#if cargando}
-		<Loading/>
+		<Loading />
 	{:else if errorMsg}
 		<p class="text-center text-red-500">{errorMsg}</p>
-	{:else if productos.length === 0}
+	{:else if $productosStore.length === 0}
 		<p class="text-center text-gray-500">No hay productos disponibles.</p>
 	{:else}
 		<div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -135,22 +134,24 @@
 							<span class="text-xl font-bold text-gray-900">${p.precio}</span>
 
 							{#if $cantidadesEnCarrito[p.id]}
-								<div class="flex items-center justify-center gap-2 h-12">
+								<div class="flex h-12 items-center justify-center gap-2">
 									<button
-										class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-bold text-xl transition-transform hover:scale-105 active:scale-95"
+										class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 text-xl font-bold text-black shadow-md transition-transform hover:scale-105 active:scale-95"
 										on:click={() => quitarUno(p.id)}
-										aria-label="Quitar uno"
-									>-</button>
-									<span class="font-semibold text-lg w-6 text-center select-none">{$cantidadesEnCarrito[p.id]}</span>
+										aria-label="Quitar uno">-</button
+									>
+									<span class="w-6 text-center text-lg font-semibold select-none"
+										>{$cantidadesEnCarrito[p.id]}</span
+									>
 									<button
-										class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-bold text-xl transition-transform hover:scale-105 active:scale-95"
+										class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 text-xl font-bold text-black shadow-md transition-transform hover:scale-105 active:scale-95"
 										on:click={() => agregar(p)}
-										aria-label="Agregar uno"
-									>+</button>
+										aria-label="Agregar uno">+</button
+									>
 								</div>
 							{:else}
 								<button
-									class="flex items-center justify-center h-12 px-6 rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-md text-black font-semibold text-base transition-transform hover:scale-105 active:scale-95"
+									class="flex h-12 items-center justify-center rounded-lg bg-gradient-to-b from-yellow-300 to-yellow-500 px-6 text-base font-semibold text-black shadow-md transition-transform hover:scale-105 active:scale-95"
 									on:click={() => agregar(p)}
 								>
 									Añadir
