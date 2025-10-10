@@ -84,6 +84,7 @@
 
 <nav class="flex items-center justify-between bg-gray-100 p-4">
 	<div class="flex gap-4">
+		<img src="/favicon.png" alt="Logo" class="w-8 h-8" />
 		<a href="/" class="text-lg font-bold">Cantabrian Market</a>
 		<a href="/" class="hover:underline">Inicio</a>
 		<a href="/carrito" class="hover:underline">Carrito{itemsCount > 0 ? " (" + itemsCount + ") [$" + itemsTotal + "]": ""}</a>
