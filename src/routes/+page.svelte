@@ -4,6 +4,7 @@
 	import { agregar, carrito, quitarUno } from '$lib/store';
 	import { writable, derived } from 'svelte/store';
 	import { goto } from '$app/navigation';
+	import Loading from '../components/Loading.svelte';
 
 	/** @type {any[]} */
 	let productos = [];
@@ -93,7 +94,7 @@
 	</div>
 
 	{#if cargando}
-		<p class="text-center text-gray-500">Cargando productos...</p>
+		<Loading/>
 	{:else if errorMsg}
 		<p class="text-center text-red-500">{errorMsg}</p>
 	{:else if productos.length === 0}
