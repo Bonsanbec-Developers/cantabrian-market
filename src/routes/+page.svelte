@@ -64,6 +64,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Catálogo - Cantabrian Market</title>
+</svelte:head>
+
 <section class="mx-auto max-w-7xl px-4 py-8">
 	<h1 class="mb-8 text-center text-4xl font-bold text-gray-800">Catálogo de Productos</h1>
 

@@ -1,7 +1,5 @@
 <script lang="ts">
   import { supabase } from '$lib/supabaseClient';
-  import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
   import { goto } from '$app/navigation';
 
   let nombre = '';
@@ -114,6 +112,10 @@
     isUploading = false;
   }
 </script>
+
+<svelte:head>
+	<title>Publicar - Cantabrian Market</title>
+</svelte:head>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
   <div class="max-w-md w-full bg-white shadow-md rounded-lg p-8">

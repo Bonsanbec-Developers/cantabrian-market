@@ -34,6 +34,10 @@
   });
 </script>
 
+<svelte:head>
+	<title>{product?.nombre ?? "Producto desconocido"} - Cantabrian Market</title>
+</svelte:head>
+
 {#if loading}
   <Loading/>
 {:else if product}

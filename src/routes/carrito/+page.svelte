@@ -76,6 +76,10 @@
   })
 </script>
 
+<svelte:head>
+	<title>Mi carrito - Cantabrian Market</title>
+</svelte:head>
+
 <div class="lg:w-1/2 h-full mx-auto my-auto pt-12">
     <h1 class="text-3xl font-bold mb-6">Carrito</h1>
     {#if cargando}
