@@ -23,7 +23,7 @@
   }
 
   async function confirmarPago() {
-    // Validaciones con expresiones regulares
+
     const tarjetaRegex = /^(\d{4}\s?){4}$/;
     const fechaRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
     const cvvRegex = /^\d{3,4}$/;
@@ -45,7 +45,7 @@
 
     mensajeError = '';
     try {
-      // Llamada RPC a pagar
+
       const { error } = await supabase.rpc('pagar', {
         numero_tarjeta: numeroTarjeta,
         fecha_expiracion: fechaExpiracion,
@@ -55,7 +55,7 @@
         mensajeError = error.message;
         return;
       }
-      // Actualizar carrito con datos retornados
+
       await cargarCarrito();
       pagoExitoso = true;
       setTimeout(() => {

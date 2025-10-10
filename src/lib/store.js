@@ -88,7 +88,7 @@ export async function cargarCarrito() {
         return;
     }
 
-    // Mapear a formato de store
+
     const carritoLocal = data.map(item => ({
         id: item.producto_id,
         cantidad: item.cantidad,

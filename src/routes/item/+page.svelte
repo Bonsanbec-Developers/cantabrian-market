@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import { supabase } from '$lib/supabaseClient';
   import { get } from 'svelte/store';
-  import { carrito, agregar, quitarUno } from '$lib/store'; // Importa los stores necesarios
+  import { carrito, agregar, quitarUno } from '$lib/store';
   import { derived } from 'svelte/store';
 	import Loading from '../../components/Loading.svelte';
 
@@ -26,7 +26,7 @@
     loading = false;
   });
 
-  // Deriva la cantidad del producto en el carrito
+
   const cantidad = derived(carrito, ($carrito) => {
     if (!product) return 0;
     const item = $carrito.find(i => i.id === product.id);

@@ -9,7 +9,7 @@
 	let cargando = true;
 	let errorMsg = '';
 
-	// Paginación
+
 	const itemsPorPagina = 8;
 	const paginaActual = writable(1);
 
@@ -25,7 +25,7 @@
 		cargando = false;
 	});
 
-	// Filtrado y búsqueda reactivo con derived
+
 	const productosFiltrados = derived(
 		[productosStore, searchQueryStore, precioMinStore, precioMaxStore],
 		([$productos, $searchQuery, $precioMin, $precioMax]) => {
@@ -38,7 +38,7 @@
 		}
 	);
 
-	// Paginación calculada
+
 	const paginas = derived(productosFiltrados, ($productosFiltrados) => {
 		const total = Math.ceil($productosFiltrados.length / itemsPorPagina);
 		return Array.from({ length: total }, (_, i) => i + 1);
@@ -53,7 +53,7 @@
 		return $productosFiltrados.slice(start, start + itemsPorPagina);
 	}
 
-	// Derivado para obtener cantidades de productos en el carrito por id
+
 	const cantidadesEnCarrito = derived(carrito, ($carrito) => {
 		const cantidades = {};
 		for (const item of $carrito) {

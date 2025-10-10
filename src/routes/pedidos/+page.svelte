@@ -35,7 +35,7 @@
 				throw new Error('Usuario no autenticado');
 			}
 
-			// Obtener filas de ordenes (cada fila representa un producto comprado) junto con el producto y el pago total de la orden
+
 			const { data, error: fetchError } = await supabase
 				.from('ordenes')
 				.select(`
@@ -61,7 +61,7 @@
 				return;
 			}
 
-			// Agrupar productos por id de orden y obtener pago total de la orden
+
 			const ordenesMap = new Map<number, Orden>();
 
 			for (const fila of data) {
@@ -85,7 +85,7 @@
 				}
 			}
 
-			// Ya que total se debe mostrar como pago, asignamos total = pago para cada orden
+
 			ordenes = Array.from(ordenesMap.values()).map(o => ({ ...o, total: o.pago }));
 		} catch (err) {
 			error = err.message || 'Error desconocido';
