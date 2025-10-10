@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import { supabase } from '$lib/supabaseClient';
+  import "../app.css";
 
   export const user = writable(null);
   export const showModal = writable(false);

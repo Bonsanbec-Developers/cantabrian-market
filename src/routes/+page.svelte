@@ -51,14 +51,3 @@
     </div>
   {/if}
 </section>
-
-<style>
-  /* Para suavizar sombras y transiciones */
-  img {
-    transition: transform 0.3s ease-in-out;
-  }
-  button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-  }
-</style>
