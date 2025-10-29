@@ -1,0 +1,63 @@
+digraph CantabrianMarket {
+    rankdir=LR;
+    graph [fontname="Consolas", fontsize=11, labelloc="t", label="Flujo de Datos - Cantabrian Market"];
+    node [shape=box, fontname="Consolas", fontsize=10, style=filled, fillcolor="#f9f9f9", color="#555555"];
+    edge [fontname="Consolas", fontsize=9, color="#333333"];
+
+    subgraph cluster_client {
+        label="Frontend (Cliente Web - SvelteKit en Vercel)";
+        color="#cccccc";
+        style="rounded";
+        SvelteKit [label="SvelteKit\n(Tailwind + Stores + Routing)"];
+        User [label="Usuario Navegador\n(HTTP + TLS)"];
+        User -> SvelteKit [label="Interacción UI"];
+    }
+
+    subgraph cluster_supabase {
+        label="Backend as a Service (Supabase)";
+        color="#cccccc";
+        style="rounded";
+        Auth [label="Auth\nCorreo/Contraseña"];
+        DB [label="PostgreSQL Database"];
+        Storage [label="Storage\n(Bucket 'productos')"];
+        RPC_Pagar [label="RPC: pagar()\nSimula pago y genera órdenes"];
+        RPC_Publicar [label="RPC: publicar_producto()\nInserta nuevos productos"];
+    }
+
+    subgraph cluster_db {
+        label="Esquema Público - Tablas principales";
+        color="#dddddd";
+        style="dotted";
+        Productos [label="productos\n(id, nombre, descripcion, precio, imagen, visible, publicador)"];
+        Carritos [label="carritos\n(id_usuario, producto_id, cantidad)"];
+        Ordenes [label="ordenes\n(id, user_id, producto_id, cantidad, pago)"];
+    }
+
+    // Conexiones desde el cliente
+    SvelteKit -> Auth [label="SignUp / Login / Logout\n(supabase.auth.*)"];
+    SvelteKit -> Productos [label="SELECT *\nCargar catálogo"];
+    SvelteKit -> Carritos [label="INSERT / UPDATE / DELETE\nAgregar / quitar del carrito"];
+    SvelteKit -> RPC_Pagar [label="RPC call\nValidar y procesar pago"];
+    SvelteKit -> Ordenes [label="SELECT\nConsultar pedidos"];
+    SvelteKit -> Storage [label="Upload imagen\nal folder {uid}/"];
+    SvelteKit -> RPC_Publicar [label="RPC call\nPublicar nuevo producto"];
+
+    // Flujo interno en Supabase
+    RPC_Pagar -> Ordenes [label="INSERT\nRegistrar ordenes"];
+    RPC_Pagar -> Carritos [label="DELETE\nVaciar carrito"];
+    RPC_Publicar -> Productos [label="INSERT\nCrear nuevo producto"];
+
+    // Dependencias y llaves foráneas
+    Carritos -> Productos [label="producto_id FK"];
+    Ordenes -> Productos [label="producto_id FK"];
+    Productos -> Auth [label="publicador FK"];
+
+    // Autenticación y seguridad
+    Auth -> DB [label="auth.uid() contexto\nRLS policies"];
+
+    // Storage control
+    Storage -> Auth [label="RLS policy\nupload_own_folder_only"];
+
+    // Layout
+    {rank=same; Productos; Carritos; Ordenes;}
+}
