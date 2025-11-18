@@ -170,7 +170,7 @@
       </div>
 
       <div>
-        <label for="imagen" class="block text-gray-700 font-medium mb-1">URL de la imagen (opcional)</label>
+        <label for="imagen" class="block text-gray-700 font-medium mb-1">URL de la imagen </label>
         <input
           id="imagen"
           type="url"
